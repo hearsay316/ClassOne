@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.css" rel="stylesheet">
+    <style>
+        ul,li{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        li{
+            display: inline-block;
+            float: left;
+            text-align: center;
+            border:1px solid red;
+        }
+    </style>
+</head>
+<body>
+<div>这个是app{{.test}}</div>
+<form method="post" action="/index">
+    <input type="submit" value="提交"  />
+</form>
+<ul>
+    <li class="col-md-3">1</li>
+    <li class="col-md-3">2</li>
+    <li class="col-md-3">3</li>
+    <li class="col-md-3">4</li>
+</ul>
+</body>
+</html>
