@@ -13,5 +13,4 @@ func init() {
 	beego.Router("/orm", &controllers.OrmController{}, "get:ShowMysql")
 	beego.Router("/insert", &controllers.OrmController{}, "get:ShowInsert")
 	beego.Router("/update", &controllers.OrmController{}, "get:ShowUpdate")
-
 }

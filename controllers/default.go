@@ -16,7 +16,7 @@ func (c *MainController) Get() {
 	c.Data["Email"] = "astaxie@gmail.comdd"
 	c.Data["test"] = "区块链"
 	//c.TplName = "index.tpl"
-	c.TplName = "test.html"
+	c.TplName = "login.html"
 }
 func (this *IndexController) Post() {
 	this.Data["test"] = "区块链最棒"
