@@ -15,13 +15,13 @@ type User struct {
 	PassWord string
 }
 type Article struct {
-	Id      int
-	Title   string
-	Content string
-	Img     string
-	Type    string
-	Time    time.Time
-	Count   int
+	Id      int       `orm:"pk;auto"`
+	Title   string    `orm:"size(20)"`
+	Content string    `orm:"size(500)"`
+	Img     string    `orm:"size(50);null"`
+	Type    string    `orm:"size(500)"`
+	Time    time.Time `orm:"type(datetime);auto_now_add"`
+	Count   int       `orm:"default(0)"`
 }
 
 func init() {
