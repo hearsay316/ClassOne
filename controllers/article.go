@@ -5,9 +5,11 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"math"
 	"net/http"
 	"os"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -21,11 +23,28 @@ func (C *ArticleController) ShowArticleList() {
 	o := orm.NewOrm()
 	qs := o.QueryTable("Article")
 	var artList []models.Article
-	_, err := qs.All(&artList)
+	pageIndex := C.GetString("pageIndex")
+	pageIndex1, err := strconv.Atoi(pageIndex)
+	if err != nil {
+		pageIndex1 = 1
+	}
+	pageSize := 2
+
+	start := pageSize * (pageIndex1 - 1)
+	_, err = qs.Limit(pageSize, start).All(&artList)
 	if err != nil {
 		return
 	}
+	count, err := qs.Count()
+	if err != nil {
+		return
+	}
+	pageCont := int(math.Ceil(float64(count) / float64(pageSize)))
 	C.Data["artList"] = artList
+	C.Data["count"] = count
+	C.Data["pageCont"] = pageCont
+	C.Data["pageIndex"] = pageIndex1
+	C.Data["Ss"] = true
 	C.TplName = "index.html"
 }
 
