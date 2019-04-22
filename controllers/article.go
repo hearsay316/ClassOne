@@ -201,3 +201,26 @@ func (C *ArticleController) HandlePostUpdate() {
 	//返回视图
 	C.Redirect("/ShowArticle", 302)
 }
+func (C *ArticleController) HandleGetAddType() {
+	o := orm.NewOrm()
+	var articleType []models.ArticleType
+	_, err := o.QueryTable("ArticleType").All(&articleType)
+	C.Data["articleType"] = articleType
+	logs.Info(articleType)
+	if err != nil {
+		logs.Info(err)
+	}
+	C.Data["types"] = articleType
+	C.TplName = "addType.html"
+}
+func (C *ArticleController) HandlePostAddType() {
+	typeName := C.GetString("typeName")
+	o := orm.NewOrm()
+	var articleType models.ArticleType
+	articleType.TypeName = typeName
+	_, err := o.Insert(&articleType)
+	if err != nil {
+		logs.Info("错误")
+	}
+	C.Redirect("/AddArticleType", 302)
+}
