@@ -31,16 +31,46 @@ func (C *ArticleController) ShowArticleList() {
 	pageSize := 2
 
 	start := pageSize * (pageIndex1 - 1)
-	_, err = qs.Limit(pageSize, start).All(&artList)
+	_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").All(&artList)
 	if err != nil {
 		return
 	}
-	count, err := qs.Count()
+	count, err := qs.RelatedSel("ArticleType").Count()
 	if err != nil {
 		return
 	}
 	pageCont := int(math.Ceil(float64(count) / float64(pageSize)))
-	C.Data["artList"] = artList
+	// 获取所有数据类型
+	var types []models.ArticleType
+	o.QueryTable("ArticleType").All(&types)
+
+	/*selects:=C.GetString("select")
+	logs.Info(selects)
+	o:=orm.NewOrm()
+	var articles []models.ArticleType
+	o.QueryTable("Article").Filter("ArticleType_Typename",selects).All(&articles)
+	logs.Info(articles)*/
+	// 根据类型获取数据
+	var articleEithType []models.Article
+	selects := C.GetString("select")
+	if selects == "" {
+		_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").All(&articleEithType)
+		if err != nil {
+			logs.Info("err顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶", err)
+		}
+		logs.Info(articleEithType)
+	} else {
+		logs.Info(selects)
+		logs.Info("err222222222222")
+		_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").Filter("ArticleType__TypeName", selects).All(&articleEithType)
+		if err != nil {
+			logs.Info("err222222222222", err)
+		}
+		logs.Info(articleEithType)
+	}
+	logs.Info(articleEithType, 66666666)
+	C.Data["types"] = types
+	C.Data["artList"] = articleEithType
 	C.Data["count"] = count
 	C.Data["pageCont"] = pageCont
 	C.Data["pageIndex"] = pageIndex1
@@ -49,7 +79,17 @@ func (C *ArticleController) ShowArticleList() {
 }
 
 func (C *ArticleController) ShowAddArticle() {
+	o := orm.NewOrm()
+	var types []models.ArticleType
+	_, err := o.QueryTable("ArticleType").All(&types)
+	if err != nil {
+		logs.Info("数据库没有类型值")
+	}
+	C.Data["types"] = types
 	C.TplName = "add.html"
+}
+func (C *ArticleController) HandleArticleList() {
+
 }
 
 /*
@@ -61,6 +101,7 @@ func (C *ArticleController) ShowAddArticle() {
 func (C *ArticleController) HandleAddArticle() {
 	artName := C.GetString("articleName")
 	artContent := C.GetString("content")
+	selects := C.GetString("select")
 	fileGet, header, err := C.GetFile("uploadname")
 	if err != nil {
 		logs.Info("err:C.GetFile-")
@@ -92,8 +133,15 @@ func (C *ArticleController) HandleAddArticle() {
 
 	// 插入数据
 	//1 获取orm
+	var ArticleType models.ArticleType
+	ArticleType.TypeName = selects
 	o := orm.NewOrm()
-	article := models.Article{Title: artName, Content: artContent, Img: "./static/img/" + filename + ext}
+	err = o.Read(&ArticleType, "TypeName")
+	if err != nil {
+		logs.Info("err", err)
+		return
+	}
+	article := models.Article{Title: artName, Content: artContent, Img: "./static/img/" + filename + ext, ArticleType: &ArticleType}
 	_, err = o.Insert(&article)
 	if err != nil {
 		logs.Info("插入数据失败")
