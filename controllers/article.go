@@ -29,7 +29,6 @@ func (C *ArticleController) ShowArticleList() {
 		pageIndex1 = 1
 	}
 	pageSize := 2
-
 	start := pageSize * (pageIndex1 - 1)
 	_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").All(&artList)
 	if err != nil {
@@ -58,15 +57,12 @@ func (C *ArticleController) ShowArticleList() {
 		if err != nil {
 			logs.Info("err顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶", err)
 		}
-		logs.Info(articleEithType)
+
 	} else {
-		logs.Info(selects)
-		logs.Info("err222222222222")
-		_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").Filter("ArticleType__TypeName", selects).All(&articleEithType)
+		_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").Filter("ArticleType__TypeName", selects).All(&articleEithType) // 必须要是article__下划线
 		if err != nil {
-			logs.Info("err222222222222", err)
+			logs.Info("err顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶", err)
 		}
-		logs.Info(articleEithType)
 	}
 	logs.Info(articleEithType, 66666666)
 	C.Data["types"] = types
