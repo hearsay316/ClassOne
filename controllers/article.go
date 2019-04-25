@@ -52,7 +52,8 @@ func (C *ArticleController) ShowArticleList() {
 	// 根据类型获取数据
 	var articleEithType []models.Article
 	selects := C.GetString("select")
-	if selects == "" {
+
+	if !("" != selects) || selects == "0" {
 		_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").All(&articleEithType)
 		if err != nil {
 			logs.Info("err顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶", err)
@@ -65,6 +66,7 @@ func (C *ArticleController) ShowArticleList() {
 		}
 	}
 	logs.Info(articleEithType, 66666666)
+	C.Data["selects"] = selects
 	C.Data["types"] = types
 	C.Data["artList"] = articleEithType
 	C.Data["count"] = count

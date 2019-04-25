@@ -5,6 +5,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"net/http"
+	"time"
 )
 
 type MainController struct {
@@ -12,7 +14,11 @@ type MainController struct {
 }
 
 func (C *MainController) Get() {
-	C.TplName = "login.html"
+	name := C.Ctx.GetCookie("userName")
+	if name == "" {
+		C.TplName = "login.html"
+	}
+	C.Data["Username"] = name
 }
 func (C *MainController) Post() {
 	name := C.GetString("userName")
@@ -35,5 +41,6 @@ func (C *MainController) Post() {
 		C.TplName = "login.html"
 		return
 	}
-	C.Ctx.WriteString("登录成功")
+	C.Ctx.SetCookie("userName", name, time.Second*3600)
+	C.Redirect("/ShowArticle", http.StatusFound)
 }

@@ -40,8 +40,10 @@
             <span class="sel_label">请选择文章分类：</span>
             <form id="form" METHOD="get" action="/ShowArticle">
             <select name="select" id="select" class="sel_opt">
+                <option selected="true"  >默认</option>
+                <option value="0">全部</option>
                 {{range .types}}
-                        <option selected="true" >{{.TypeName}}</option>
+                        <option  >{{.TypeName}}</option>
                 {{end}}
             </select>
                 <input type="submit" hidden>
@@ -72,10 +74,10 @@
 
             <ul class="pagenation">
                 <li><a href="/ShowArticle?pageIndex=1">首页</a></li>
-                <li><a href="/ShowArticle?pageIndex={{ .pageIndex | PrePage }}">上一页 </a> </li>
-                <li> <a href="/ShowArticle?pageIndex={{NextPage .pageIndex .pageCont}}">下一页</a></li>
-                <li><a href="/ShowArticle?pageIndex={{.pageCont}}">末页</a></li>
-                <li>共{{.count}}条记录/共{{.pageCont}}页/当r前{{.pageIndex}}页</li>
+                <li><a href="/ShowArticle?pageIndex={{ .pageIndex | PrePage }}&select={{.selects}}">上一页 </a> </li>
+                <li> <a href="/ShowArticle?pageIndex={{NextPage .pageIndex .pageCont}}&select={{.selects}}">下一页</a></li>
+                <li><a href="/ShowArticle?pageIndex={{.pageCont}}&select={{.selects}}">末页</a></li>
+                <li>共{{.count}}条记录/共{{.pageCont}}页/当前{{.pageIndex}}页</li>
 
             </ul>
         </div>
@@ -90,7 +92,7 @@
                    return false
             }
         });
-        $("#select").change(function () {
+        $("#select").change(function (ev) {
             $("#form").submit()
         })
     </script>
