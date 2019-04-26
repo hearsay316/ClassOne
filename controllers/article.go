@@ -80,7 +80,7 @@ func (C *ArticleController) ShowArticleList() {
 	C.Data["pageCont"] = pageCont
 	C.Data["pageIndex"] = pageIndex1
 	C.Data["Ss"] = true
-	C.Layout = "layout.html"
+	C.Layout = "layout.html "
 	C.TplName = "index.html"
 }
 
