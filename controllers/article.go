@@ -19,6 +19,13 @@ type ArticleController struct {
 
 // 文章列表页
 func (C *ArticleController) ShowArticleList() {
+	Username := C.GetSession("UserName")
+	logs.Info(Username)
+	if Username == nil {
+		C.Redirect("/", 302)
+		return
+	}
+
 	//1  查询
 	o := orm.NewOrm()
 	qs := o.QueryTable("Article")
@@ -73,6 +80,7 @@ func (C *ArticleController) ShowArticleList() {
 	C.Data["pageCont"] = pageCont
 	C.Data["pageIndex"] = pageIndex1
 	C.Data["Ss"] = true
+	C.Layout = "layout.html"
 	C.TplName = "index.html"
 }
 
@@ -145,7 +153,7 @@ func (C *ArticleController) HandleAddArticle() {
 		logs.Info("插入数据失败")
 		return
 	}
-	C.Redirect("/ShowArticle", 302)
+	C.Redirect("/Article/ShowArticle", 302)
 }
 func (C *ArticleController) ShowArticleDetail() {
 	id, err := C.GetInt("articleId")
@@ -181,7 +189,7 @@ func (C *ArticleController) HandleDelete() {
 	if err != nil {
 		return
 	}
-	C.Redirect("/ShowArticle", http.StatusFound)
+	C.Redirect("/Article/ShowArticle", http.StatusFound)
 }
 func (C *ArticleController) HandleGetUpdate() {
 	id, err := C.GetInt("id")
@@ -245,7 +253,7 @@ func (C *ArticleController) HandlePostUpdate() {
 	_, _ = o.Update(&article)
 
 	//返回视图
-	C.Redirect("/ShowArticle", 302)
+	C.Redirect("/Article/ShowArticle", 302)
 }
 func (C *ArticleController) HandleGetAddType() {
 	o := orm.NewOrm()
@@ -268,5 +276,11 @@ func (C *ArticleController) HandlePostAddType() {
 	if err != nil {
 		logs.Info("错误")
 	}
-	C.Redirect("/AddArticleType", 302)
+	C.Redirect("/Article/AddArticleType", 302)
+}
+
+// 退出登录
+func (C *ArticleController) ShowLogout() {
+	C.DelSession("UserName")
+	C.Redirect("/", 302)
 }

@@ -19,6 +19,8 @@ func (C *MainController) Get() {
 		C.TplName = "login.html"
 	}
 	C.Data["Username"] = name
+
+	C.TplName = "login.html"
 }
 func (C *MainController) Post() {
 	name := C.GetString("userName")
@@ -31,6 +33,7 @@ func (C *MainController) Post() {
 	o := orm.NewOrm()
 	user := models.User{UserName: name}
 	err := o.Read(&user, "UserName")
+	logs.Info(user)
 	if err != nil {
 		logs.Info("用户名失败")
 		C.TplName = "login.html"
@@ -41,6 +44,13 @@ func (C *MainController) Post() {
 		C.TplName = "login.html"
 		return
 	}
-	C.Ctx.SetCookie("userName", name, time.Second*3600)
-	C.Redirect("/ShowArticle", http.StatusFound)
+	check := C.GetString("remember")
+	if check == "on" {
+		C.Ctx.SetCookie("userName", name, time.Second*3600)
+	} else {
+		C.Ctx.SetCookie("userName", "", -1)
+	}
+	logs.Info("zhge shi ")
+	C.SetSession("UserName", name)
+	C.Redirect("/Article/ShowArticle", http.StatusFound)
 }
