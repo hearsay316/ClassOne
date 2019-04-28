@@ -154,7 +154,7 @@ func (C *ArticleController) HandleAddArticle() {
 		return
 	}
 	C.Redirect("/Article/ShowArticle", 302)
-}
+} // 查看文章详情
 func (C *ArticleController) ShowArticleDetail() {
 	id, err := C.GetInt("articleId")
 	if err != nil {
@@ -169,6 +169,20 @@ func (C *ArticleController) ShowArticleDetail() {
 	if err != nil {
 		return
 	}
+	//
+	m2m := o.QueryM2M(&article, "Users")
+	UserNames := C.GetSession("UserName")
+	user := models.User{UserName: UserNames.(string)}
+	_ = o.Read(&user, "UserName")
+	// 多对多插入
+	_, err = m2m.Add(&user)
+	if err != nil {
+		logs.Info("插入失败")
+	}
+
+	o.LoadRelated(&article, "Users")
+	logs.Info(article.Users)
+
 	C.Data["article"] = article
 	C.TplName = "content.html"
 }

@@ -13,6 +13,7 @@ type User struct {
 	Id       int64
 	UserName string
 	PassWord string
+	Articles []*Article `orm:"rel(m2m)"`
 }
 type Article struct {
 	Id          int          `orm:"pk;auto"`
@@ -22,6 +23,7 @@ type Article struct {
 	Time        time.Time    `orm:"type(datetime);auto_now_add"`
 	Count       int          `orm:"default(0)"`
 	ArticleType *ArticleType `orm:"rel(fk)"`
+	Users       []*User      `orm:"reverse(many)"`
 }
 type ArticleType struct {
 	Id       int
