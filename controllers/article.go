@@ -20,6 +20,7 @@ type ArticleController struct {
 // 文章列表页
 func (C *ArticleController) ShowArticleList() {
 	Username := C.GetSession("UserName")
+	selects := C.GetString("select")
 	logs.Info(Username)
 	if Username == nil {
 		C.Redirect("/", 302)
@@ -41,29 +42,19 @@ func (C *ArticleController) ShowArticleList() {
 	if err != nil {
 		return
 	}
-	count, err := qs.RelatedSel("ArticleType").Count()
-	if err != nil {
-		return
-	}
-	pageCont := int(math.Ceil(float64(count) / float64(pageSize)))
-	// 获取所有数据类型
-	var types []models.ArticleType
-	o.QueryTable("ArticleType").All(&types)
 
-	/*selects:=C.GetString("select")
-	logs.Info(selects)
-	o:=orm.NewOrm()
-	var articles []models.ArticleType
-	o.QueryTable("Article").Filter("ArticleType_Typename",selects).All(&articles)
-	logs.Info(articles)*/
 	// 根据类型获取数据
 	var articleEithType []models.Article
-	selects := C.GetString("select")
 
+	var count int64
 	if !("" != selects) || selects == "0" {
 		_, err = qs.Limit(pageSize, start).RelatedSel("ArticleType").All(&articleEithType)
 		if err != nil {
 			logs.Info("err顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶", err)
+		}
+		count, err = qs.RelatedSel("ArticleType").Count()
+		if err != nil {
+			return
 		}
 
 	} else {
@@ -71,7 +62,23 @@ func (C *ArticleController) ShowArticleList() {
 		if err != nil {
 			logs.Info("err顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶顶", err)
 		}
+		count, err = qs.RelatedSel("ArticleType").Filter("ArticleType__TypeName", selects).Count()
+		if err != nil {
+			return
+		}
 	}
+	pageCont := int(math.Ceil(float64(count) / float64(pageSize)))
+	// 获取所有数据类型
+	var types []models.ArticleType
+	_, _ = o.QueryTable("ArticleType").All(&types)
+
+	/*selects:=C.GetString("select")
+	logs.Info(selects)
+	o:=orm.NewOrm()
+	var articles []models.ArticleType
+	o.QueryTable("Article").Filter("ArticleType_Typename",selects).All(&articles)
+	logs.Info(articles)*/
+
 	logs.Info(articleEithType, 66666666)
 	C.Data["selects"] = selects
 	C.Data["types"] = types
@@ -180,9 +187,19 @@ func (C *ArticleController) ShowArticleDetail() {
 		logs.Info("插入失败")
 	}
 
-	o.LoadRelated(&article, "Users")
-	logs.Info(article.Users)
-
+	//o.LoadRelated(&article, "Users")
+	/*err=o.QueryTable("Article").Filter("Users__User__UserName",user).Distinct().Filter("Id",id).One(&article)
+	if err!=nil {
+		logs.Info("err:article")
+	}*/
+	var users []models.User
+	//err=o.QueryTable("User").Filter("Articles__Article__Id",id).Distinct().All(&users)
+	_, err = o.QueryTable("User").Filter("Articles__Article__Id", id).Distinct().All(&users)
+	if err != nil {
+		logs.Info("QueryTable")
+	}
+	logs.Info(users)
+	C.Data["users"] = users
 	C.Data["article"] = article
 	C.TplName = "content.html"
 }
@@ -297,4 +314,21 @@ func (C *ArticleController) HandlePostAddType() {
 func (C *ArticleController) ShowLogout() {
 	C.DelSession("UserName")
 	C.Redirect("/", 302)
+}
+
+// 删除文章类型
+func (C *ArticleController) HandleDeleteType() {
+	id := C.GetString("id")
+	id2, _ := strconv.Atoi(id)
+	if id2 == 0 {
+		logs.Info("获取错误")
+		return
+	}
+	o := orm.NewOrm()
+	articleType := models.ArticleType{Id: id2}
+	_, err := o.Delete(&articleType)
+	if err != nil {
+		logs.Info("删除错误")
+	}
+	C.Redirect("/Article/AddArticleType", 302)
 }
