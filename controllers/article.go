@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"go-common/library/cache/redis"
 	"math"
 	"net/http"
 	"os"
@@ -79,6 +80,16 @@ func (C *ArticleController) ShowArticleList() {
 	o.QueryTable("Article").Filter("ArticleType_Typename",selects).All(&articles)
 	logs.Info(articles)*/
 
+	conn, err := redis.Dial("tcp", ":6379")
+	if err != nil {
+		logs.Info("redis 数据库错误")
+		return
+	}
+	_, err = conn.Do("set", "types", types)
+	if err != nil {
+		logs.Info("redis 数据库错误")
+		return
+	}
 	logs.Info(articleEithType, 66666666)
 	C.Data["selects"] = selects
 	C.Data["types"] = types
