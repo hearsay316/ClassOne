@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"bytes"
 	"classOne/models"
+	"encoding/gob"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -22,7 +24,6 @@ type ArticleController struct {
 func (C *ArticleController) ShowArticleList() {
 	Username := C.GetSession("UserName")
 	selects := C.GetString("select")
-	logs.Info(Username)
 	if Username == nil {
 		C.Redirect("/", 302)
 		return
@@ -71,7 +72,6 @@ func (C *ArticleController) ShowArticleList() {
 	pageCont := int(math.Ceil(float64(count) / float64(pageSize)))
 	// 获取所有数据类型
 	var types []models.ArticleType
-	_, _ = o.QueryTable("ArticleType").All(&types)
 
 	/*selects:=C.GetString("select")
 	logs.Info(selects)
@@ -85,11 +85,28 @@ func (C *ArticleController) ShowArticleList() {
 		logs.Info("redis 数据库错误")
 		return
 	}
-	_, err = conn.Do("set", "types", types)
+	rel, err := redis.Bytes(conn.Do("get", "types"))
 	if err != nil {
-		logs.Info("redis 数据库错误")
+		logs.Info("redis.Bytes")
 		return
 	}
+	dec := gob.NewDecoder(bytes.NewReader(rel))
+	_ = dec.Decode(&types)
+	logs.Info(types, 555)
+
+	if len(types) == 0 {
+		_, _ = o.QueryTable("ArticleType").All(&types)
+		var buffer bytes.Buffer
+		enc := gob.NewEncoder(&buffer)
+		_ = enc.Encode(types)
+		_, err = conn.Do("set", "types", buffer.Bytes())
+		if err != nil {
+			logs.Info("redis 数据库错误")
+			return
+		}
+		logs.Info("这个是从数据库")
+	}
+
 	logs.Info(articleEithType, 66666666)
 	C.Data["selects"] = selects
 	C.Data["types"] = types
@@ -102,6 +119,7 @@ func (C *ArticleController) ShowArticleList() {
 	C.TplName = "index.html"
 }
 
+// 添加文章类型
 func (C *ArticleController) ShowAddArticle() {
 	o := orm.NewOrm()
 	var types []models.ArticleType
@@ -112,6 +130,8 @@ func (C *ArticleController) ShowAddArticle() {
 	C.Data["types"] = types
 	C.TplName = "add.html"
 }
+
+// 文章类型展示
 func (C *ArticleController) HandleArticleList() {
 
 }
