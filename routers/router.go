@@ -18,6 +18,7 @@ func init() {
 	beego.Router("/Article/UpdateArticle", &controllers.ArticleController{}, "get:HandleGetUpdate;post:HandlePostUpdate")
 	beego.Router("/Article/AddArticleType", &controllers.ArticleController{}, "get:HandleGetAddType;post:HandlePostAddType")
 	beego.Router("/Logout", &controllers.ArticleController{}, "get:ShowLogout")
+	beego.Router("/Email", &controllers.ArticleController{}, "get:SendMail")
 }
 
 var FiltFunc = func(ctx *context.Context) {

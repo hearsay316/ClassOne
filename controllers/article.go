@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/utils"
 	"go-common/library/cache/redis"
 	"math"
 	"net/http"
@@ -362,4 +363,19 @@ func (C *ArticleController) HandleDeleteType() {
 		logs.Info("删除错误")
 	}
 	C.Redirect("/Article/AddArticleType", 302)
+}
+
+// 发送邮件接口
+func (C *ArticleController) SendMail() {
+	config := `{"username":"908388349@qq.com","password":"alopfzkexgrgbbeg","host":"smtp.qq.com","port":587}`
+	email := utils.NewEMail(config)
+	email.To = []string{"qazwsx2228@163.com"}
+	email.Subject = "激活邮件"
+	email.Text = "这个是激活内容"
+	err := email.Send()
+	if err != nil {
+		logs.Info("错误", err)
+		C.Ctx.WriteString("错误")
+	}
+	C.Ctx.WriteString("成功")
 }
